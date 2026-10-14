@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+# 대상 AJAZZ 버전: 3.10.191.0421 (다른 버전에는 사용하지 마세요.)
 """patch.dat 적용기. 관리자 권한 PowerShell:  python apply_patch.py
 원본 해시 검증 -> .bak 백업 -> 패치 적용 -> 앱 재시작.
 """

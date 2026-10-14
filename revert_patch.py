@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+# 대상 AJAZZ 버전: 3.10.191.0421 (다른 버전에는 사용하지 마세요.)
 """패치 원복. 관리자 권한 PowerShell:  python revert_patch.py
 *.bak 백업들을 원래 자리로 되돌리고 앱 재시작.
 """

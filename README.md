@@ -18,7 +18,11 @@ AJAZZ Global판은 한국어 리소스가 들어있지 않습니다.
 
 ## 사용법
 
-관리자 권한 PowerShell에서, AJAZZ 설치 폴더가 기본 경로일 때:
+더블클릭 한 번으로 설치:
+
+> **`install.bat` 더블클릭 → 확인(예) 클릭 → 끝**
+
+수동 설치 (관리자 권한 PowerShell):
 
 ```powershell
 cd C:\Users\ESKA\Documents\기본 프로젝트\ajazz-korean-patch

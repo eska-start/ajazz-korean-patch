@@ -54,5 +54,10 @@ python revert_patch.py
 국내 정식판(MONSTAR DECK)은 TS 시리즈 전용이라 AKP 시리즈를 인식하지 못합니다.
 `MONSTAR DECK.exe`의 `SupportDevices`에 `AKP153E`를 추가하고
 AJAZZ 쪽 `defaultProfiles/AKP153E`를 복사(+`ko` 폴더)해도 USB 판정부에서 막힙니다.
-(양쪽 전송 계층은 동일하게 HID이며, 판정은 `SDLibrary1.dll` 쪽으로 보임)
+확인된 사항:
+* 양쪽 전송 계층은 동일 (HID, libusb 동봉)
+* 브랜드+모델 페어 테이블에 이미 `AJAZZ AKP153E`가 들어 있음
+* VID/PID 문자열 테이블은 바이너리에 없음 (인증서 오탐 제외)
+* 남은 용의자는 코드 쪽 브랜드 판정이며, 실행 파일에 Themida 보호가 있어
+  ProcMon 등 추적 도구가 차단됨. USBPcap은 드라이버 활성화에 재부팅 필요.
 추가 분석이 필요합니다.

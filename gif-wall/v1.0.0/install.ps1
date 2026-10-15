@@ -1,5 +1,5 @@
 $ErrorActionPreference = 'Stop'
-$pluginName = 'com.eska.ajazz.gif.sdPlugin'
+$pluginName = 'com.eska.ajazz.wall.sdPlugin'
 $source = Join-Path $PSScriptRoot $pluginName
 $root = Join-Path $env:APPDATA 'HotSpot\StreamDock\plugins'
 $target = Join-Path $root $pluginName
@@ -13,20 +13,20 @@ if (Test-Path $target) {
  Move-Item -LiteralPath $target -Destination $backup
 }
 Copy-Item -LiteralPath $source -Destination $target -Recurse
-$protocolRoot = 'HKCU:\Software\Classes\eskaajazzgif'
+$protocolRoot = 'HKCU:\Software\Classes\eskaajazzwall'
 $handler = Join-Path $target 'open-hidden.vbs'
 $command = '"' + $env:SystemRoot + '\System32\wscript.exe" //B //Nologo "' + $handler + '" "%1"'
 if (Test-Path $protocolRoot) {
  $existing = (Get-Item (Join-Path $protocolRoot 'shell\open\command') -ErrorAction SilentlyContinue).GetValue('')
- if ($existing -and $existing -notlike '*com.eska.ajazz.gif.sdPlugin*open-target.ps1*' -and $existing -notlike '*com.eska.ajazz.gif.sdPlugin*open-hidden.vbs*') { throw '같은 이름의 URL 연결이 이미 있습니다. 덮어쓰지 않았습니다.' }
+ if ($existing -and $existing -notlike '*com.eska.ajazz.wall.sdPlugin*open-target.ps1*' -and $existing -notlike '*com.eska.ajazz.wall.sdPlugin*open-hidden.vbs*') { throw '같은 이름의 URL 연결이 이미 있습니다. 덮어쓰지 않았습니다.' }
 }
 New-Item -Path $protocolRoot -Force | Out-Null
 Set-Item -Path $protocolRoot -Value 'URL:AJAZZ GIF Local Open'
 New-ItemProperty -Path $protocolRoot -Name 'URL Protocol' -Value '' -PropertyType String -Force | Out-Null
 New-Item -Path (Join-Path $protocolRoot 'shell\open\command') -Force | Out-Null
 Set-Item -Path (Join-Path $protocolRoot 'shell\open\command') -Value $command
-Write-Host 'GIF 버튼 0.6.0 설치 완료. 폴더·파일 열기 연결도 등록했습니다.' 
-Write-Host 'AJAZZ를 열고 오른쪽 GIF 버튼 → GIF 버튼을 빈 버튼 하나에 배치해 주세요.'
-Write-Host '초록색 점이 움직이는지 실제 기기에서 확인해 주세요.'
+Write-Host 'GIF 전체 화면 1.0.0 설치 완료. 폴더·파일 열기 연결도 등록했습니다.' 
+Write-Host 'AJAZZ의 GIF 전체 화면 → 분할 GIF 버튼을 모든 화면 버튼에 배치해 주세요.'
+Write-Host '어느 버튼의 설정에서든 전체 GIF를 한 번 선택해 주세요.'
 $paths = @("${env:ProgramFiles(x86)}\Stream Dock AJAZZ Global\Stream Dock AJAZZ.exe", "$env:ProgramFiles\Stream Dock AJAZZ Global\Stream Dock AJAZZ.exe")
 foreach ($exe in $paths) { if (Test-Path $exe) { Start-Process -FilePath $exe; break } }

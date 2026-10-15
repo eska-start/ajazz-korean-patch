@@ -28,7 +28,7 @@
   "Description": "움직이는 GIF와 웹사이트·폴더·파일 실행",
   "Category": "GIF 버튼",
   "CategoryIcon": "images/icon",
-  "Version": "0.6.0",
+  "Version": "0.8.0",
   "OS": [
     {
       "Platform": "windows",

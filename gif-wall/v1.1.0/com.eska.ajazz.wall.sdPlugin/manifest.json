@@ -1,0 +1,41 @@
+{
+  "Actions": [
+    {
+      "Icon": "images/icon",
+      "Name": "분할 GIF 버튼",
+      "States": [
+        {
+          "Image": "images/icon",
+          "TitleAlignment": "bottom",
+          "FontSize": "10"
+        }
+      ],
+      "Controllers": [
+        "Keypad"
+      ],
+      "UserTitleEnabled": true,
+      "SupportedInMultiActions": false,
+      "Tooltip": "전체 GIF의 한 칸과 클릭 기능을 설정합니다.",
+      "UUID": "com.eska.ajazz.wall.play",
+      "PropertyInspectorPath": "inspector.html"
+    }
+  ],
+  "SDKVersion": 1,
+  "Author": "ESKA",
+  "Name": "GIF 전체 화면",
+  "Icon": "images/icon",
+  "CodePath": "plugin.html",
+  "Description": "하나의 GIF를 전체 버튼에 나눠 재생합니다.",
+  "Category": "GIF 전체 화면",
+  "CategoryIcon": "images/icon",
+  "Version": "1.1.0",
+  "OS": [
+    {
+      "Platform": "windows",
+      "MinimumVersion": "10"
+    }
+  ],
+  "Software": {
+    "MinimumVersion": "3.10"
+  }
+}

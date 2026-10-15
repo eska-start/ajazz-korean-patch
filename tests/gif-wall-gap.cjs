@@ -1,6 +1,6 @@
 const {chromium}=require('playwright');
 const http=require('http'),fs=require('fs'),path=require('path'),assert=require('assert/strict');
-const root=path.resolve(__dirname,'../gif-wall/v1.2.2/com.eska.ajazz.wall.sdPlugin');
+const root=path.resolve(__dirname,'../gif-wall/v1.2.3/com.eska.ajazz.wall.sdPlugin');
 (async()=>{
  const server=http.createServer((req,res)=>{const file=path.join(root,new URL(req.url,'http://local').pathname);if(!file.startsWith(root+path.sep)){res.writeHead(403).end();return;}try{const ext=path.extname(file);res.setHeader('Content-Type',({'.html':'text/html','.js':'text/javascript','.gif':'image/gif'})[ext]||'application/octet-stream');res.end(fs.readFileSync(file));}catch{res.writeHead(404).end();}});
  await new Promise(r=>server.listen(0,'127.0.0.1',r));

@@ -25,7 +25,7 @@ Set-Item -Path $protocolRoot -Value 'URL:AJAZZ GIF Local Open'
 New-ItemProperty -Path $protocolRoot -Name 'URL Protocol' -Value '' -PropertyType String -Force | Out-Null
 New-Item -Path (Join-Path $protocolRoot 'shell\open\command') -Force | Out-Null
 Set-Item -Path (Join-Path $protocolRoot 'shell\open\command') -Value $command
-Write-Host 'GIF 전체 화면 1.2.2 설치 완료. 폴더·파일 열기 연결도 등록했습니다.' 
+Write-Host 'GIF 전체 화면 1.2.3 설치 완료. 폴더·파일 열기 연결도 등록했습니다.' 
 Write-Host 'AJAZZ의 GIF 전체 화면 → 분할 GIF 버튼을 모든 화면 버튼에 배치해 주세요.'
 Write-Host '어느 버튼의 설정에서든 전체 GIF를 한 번 선택해 주세요.'
 $paths = @("${env:ProgramFiles(x86)}\Stream Dock AJAZZ Global\Stream Dock AJAZZ.exe", "$env:ProgramFiles\Stream Dock AJAZZ Global\Stream Dock AJAZZ.exe")

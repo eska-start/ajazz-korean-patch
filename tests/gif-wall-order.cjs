@@ -1,5 +1,5 @@
 const vm=require('node:vm'),fs=require('node:fs'),path=require('node:path'),assert=require('node:assert/strict');
-const root=path.resolve(__dirname,'../gif-wall/v1.2.2/com.eska.ajazz.wall.sdPlugin');
+const root=path.resolve(__dirname,'../gif-wall/v1.2.3/com.eska.ajazz.wall.sdPlugin');
 let sent=[];const canvases=[];
 const document={createElement(type){assert.equal(type,'canvas');const c={width:0,height:0};const ctx={fillRect(){},clearRect(){},fillText(text){c.number=text;},drawImage(...args){c.draw=args.slice(1);}};c.getContext=()=>ctx;c.toDataURL=()=>'data:image/png;base64,'+Buffer.from(JSON.stringify({crop:c.draw,number:c.number})).toString('base64');canvases.push(c);return c;}};
 let sock;const sandbox={document,console,Date,Map,Number,Math,Error,Array,JSON,Promise,setTimeout,Worker:class{postMessage(){}terminate(){}},Image:class{constructor(){this.width=720;this.height=432;}set src(v){queueMicrotask(()=>this.onload());}},WebSocket:class{constructor(){sock=this;this.readyState=1;this.bufferedAmount=0;}send(s){sent.push(JSON.parse(s));}}};sandbox.window=sandbox;vm.createContext(sandbox);
@@ -46,6 +46,15 @@ for(const gaps of [false,true]){
  for(const m of corrected){const [,r,c]=m.context.split('-').map(Number);const data=JSON.parse(Buffer.from(m.payload.image.split(',')[1],'base64')),step=144+(gaps?43:0);assert.deepEqual(data.crop,[c*step,r*step,144,144,0,0,144,144]);}
 }
 console.log('PASS: measured screenshot 13 10 7 4 1 / 14 11 8 5 2 / 15 12 9 6 3 corrected to physical 1..15, gaps off/on.');
+// Apply one chosen group to all visible buttons of this device; retain other devices and click settings.
+event({event:'willAppear',device:'second-device',context:'second-device-key',payload:{coordinates:{row:0,column:0},settings:{wallGroup:7}}});
+const first=W.slots.get('physical-0-0');first.settings.clickAction='website';first.settings.clickTarget='https://example.com';
+event({event:'sendToPlugin',context:'physical-0-0',payload:{applyVisibleGroup:true,wallGroup:3}});
+for(const s of W.slots.values())if(s.device==='dev')assert.equal(s.settings.wallGroup,3);
+assert.equal(W.slots.get('second-device-key').settings.wallGroup,7);assert.equal(first.settings.clickTarget,'https://example.com');
+event({event:'willDisappear',context:'physical-0-1'});
+event({event:'sendToPlugin',context:'physical-0-0',payload:{applyVisibleGroup:true,wallGroup:4}});assert.equal(W.slots.has('physical-0-1'),false);
+console.log('PASS: bulk visible-group assignment, other-device isolation, preserved click settings and disappeared-slot exclusion.');
 // Inspector boot checks every requested element against actual HTML IDs.
 const html=fs.readFileSync(path.join(root,'inspector.html'),'utf8'),elements=new Map([...html.matchAll(/id="([^"]+)"/g)].map(m=>[m[1],{value:'',style:{},classList:{toggle(){}},appendChild(){},getContext(){return {}}}]));
 const ui={console,Date,JSON,Number,Math,setTimeout(){},clearTimeout(){},document:{getElementById(id){assert.ok(elements.has(id),'Missing UI element '+id);return elements.get(id);},createElement(){return {};}},addEventListener(){}};ui.window=ui;vm.createContext(ui);vm.runInContext(fs.readFileSync(path.join(root,'inspector.js'),'utf8'),ui);

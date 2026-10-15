@@ -1,0 +1,16 @@
+분석 대상: ajazz.zip
+
+확인한 내부 파일:
+defaultData/defaultPlugins/com.hotspot.streamdock.memo.sdPlugin/manifest.json
+defaultData/defaultPlugins/com.hotspot.streamdock.memo.sdPlugin/static/plugin.js
+defaultData/defaultPlugins/com.hotspot.streamdock.memo.sdPlugin/plugin/index.js
+
+기존 플러그인은 HTML 진입점, SDKVersion 1, connectElgatoStreamDeckSocket 등록,
+PNG data URI 형식 setImage 전송을 사용합니다. 타이머로 버튼 이미지도 반복 갱신합니다.
+새 플러그인은 이 경로로 GIF 프레임을 전송하며 장치를 직접 점유하지 않습니다.
+
+EXE의 기기 GIF 지원 판정을 변경하는 바이너리 패치는 만들지 않았습니다.
+그 판정을 강제로 변경하더라도 펌웨어가 GIF 명령을 처리할 근거가 없기 때문입니다.
+
+GIF 디코더: gifuct-js 및 js-binary-schema-parser (MIT). vendor 폴더에 라이선스 포함.
+원본 demo 번들의 시작 모듈을 라이브러리 모듈로 변경해 사용했습니다.

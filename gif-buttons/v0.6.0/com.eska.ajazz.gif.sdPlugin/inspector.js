@@ -1,0 +1,37 @@
+(function(){
+'use strict';let socket,uuid,action,settings={},lastStatus='연결 중…',pending=null,editingUntil=0;
+const el=id=>document.getElementById(id);
+function status(text){lastStatus=text;el('status').textContent=text;el('status').classList.toggle('error',/오류|실패|끊겼|못했/.test(text));}
+function targetUI(){const kind=el('clickAction').value,has=['website','folder','file'].includes(kind);el('targetRow').style.display=has?'block':'none';el('browserRow').style.display=kind==='website'?'block':'none';el('folderRow').style.display=kind==='folder'?'block':'none';el('testAction').style.display=has?'block':'none';el('browse').style.display=(kind==='folder'||kind==='file')?'block':'none';el('browse').textContent=kind==='folder'?'폴더 선택':'파일 선택';el('targetLabel').textContent=kind==='website'?'웹사이트 주소':kind==='folder'?'폴더 경로':'프로그램·파일 경로';el('clickTarget').placeholder=kind==='website'?'https://example.com':kind==='folder'?'C:\\Users\\사용자\\Documents':'C:\\Program Files\\프로그램\\app.exe';el('actionHint').textContent=kind==='pause'?'버튼을 누를 때마다 재생·정지합니다.':kind==='none'?'버튼을 눌러도 실행하지 않습니다.':'버튼을 눌러 실행해도 GIF는 계속 움직입니다.';}
+function show(){el('fps').value=String(settings.fps||12);el('speed').value=String(settings.speed||1);el('name').textContent=settings.gifName||'기본 아이콘';el('preview').src=settings.gifBase64?'data:image/gif;base64,'+settings.gifBase64:'default.gif';el('clickAction').value=settings.clickAction||'pause';el('clickTarget').value=settings.clickTarget||'';el('browser').value=settings.browser||'default';el('folderMode').value=settings.folderMode||'reuse';targetUI();}
+function collect(){settings=Object.assign({},settings,{fps:Number(el('fps').value),speed:Number(el('speed').value),clickAction:el('clickAction').value,clickTarget:el('clickTarget').value.trim(),browser:el('browser').value,folderMode:el('folderMode').value});}
+function save(){clearTimeout(pending);pending=null;if(!socket||socket.readyState!==1){el('saveState').textContent='연결 대기';status('연결을 확인해 주세요.');return false;}editingUntil=Date.now()+800;socket.send(JSON.stringify({event:'setSettings',context:uuid,payload:settings}));el('saveState').textContent='저장됨';return true;}
+function queueSave(){collect();editingUntil=Date.now()+1200;el('saveState').textContent='저장 중…';clearTimeout(pending);pending=setTimeout(save,350);}
+function connect(port,id,event,info,actionInfo){uuid=id;let data={};try{data=JSON.parse(actionInfo||'{}');}catch{}action=data.action||'com.eska.ajazz.gif.play';settings=data.payload&&data.payload.settings||{};show();socket=new WebSocket('ws://127.0.0.1:'+port);socket.onopen=()=>{socket.send(JSON.stringify({event:event,uuid:id}));el('saveState').textContent='자동 저장';status('설정을 바꾸면 자동으로 저장됩니다.');};socket.onmessage=e=>{let m;try{m=JSON.parse(e.data);}catch{return;}if(m.event==='didReceiveSettings'&&Date.now()>=editingUntil&&!pending){settings=m.payload.settings||{};show();}else if(m.event==='sendToPropertyInspector'&&m.payload.status)status(m.payload.status);};socket.onclose=()=>{el('saveState').textContent='연결 끊김';status('연결이 끊겼습니다. AJAZZ를 다시 실행해 주세요.');};}
+['fps','speed','browser','folderMode'].forEach(id=>el(id).onchange=()=>{collect();save();});el('clickAction').onchange=()=>{targetUI();collect();save();};el('clickTarget').oninput=queueSave;el('clickTarget').onblur=()=>{collect();save();};el('clickTarget').onkeydown=e=>{if(e.key==='Enter'){collect();save();el('clickTarget').blur();}};
+let pickerToken=null,pickerTimer=null;
+function finishPicker(){pickerToken=null;clearTimeout(pickerTimer);el('browse').disabled=false;}
+function pollPicker(token,kind,deadline){
+ if(pickerToken!==token)return;
+ if(Date.now()>deadline){finishPicker();status('선택 시간이 지나 종료했습니다. 다시 선택해 주세요.');return;}
+ const xhr=new XMLHttpRequest();xhr.open('GET','picker-results/'+token+'.json?t='+Date.now());
+ xhr.onload=()=>{if(pickerToken!==token)return;let data;try{data=JSON.parse(xhr.responseText);}catch{pickerTimer=setTimeout(()=>pollPicker(token,kind,deadline),400);return;}
+  finishPicker();if(data.error){status('오류: '+data.error);return;}if(data.cancelled){status('선택을 취소했습니다.');return;}
+  if(el('clickAction').value!==kind){status('버튼 동작이 변경되어 경로를 적용하지 않았습니다.');return;}
+  el('clickTarget').value=data.path||'';collect();save();status('선택한 경로를 저장했습니다.');
+ };xhr.onerror=()=>{if(pickerToken===token)pickerTimer=setTimeout(()=>pollPicker(token,kind,deadline),400);};xhr.send();
+}
+el('browse').onclick=()=>{
+ if(!socket||socket.readyState!==1){status('연결을 확인해 주세요.');return;}
+ const kind=el('clickAction').value;if(!['folder','file'].includes(kind))return;
+ const token='p'+Date.now().toString(36)+Math.random().toString(36).slice(2);pickerToken=token;el('browse').disabled=true;
+ const raw=unescape(encodeURIComponent(JSON.stringify({kind:kind,token:token,initial:el('clickTarget').value})));
+ const url='eskaajazzgif://pick/'+btoa(raw).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+ socket.send(JSON.stringify({event:'openUrl',payload:{url:url}}));status('Windows 선택창에서 '+(kind==='folder'?'폴더':'파일')+'를 선택해 주세요.');pollPicker(token,kind,Date.now()+180000);
+};
+el('file').onchange=function(){const f=this.files[0];if(!f)return;if(f.size>1048576){status('오류: 1MB 이하 GIF를 선택해 주세요.');return;}collect();const r=new FileReader();r.onerror=()=>status('오류: 파일을 읽지 못했습니다.');r.onload=()=>{const d=String(r.result);settings=Object.assign({},settings,{gifBase64:d.slice(d.indexOf(',')+1),gifName:f.name});show();save();};r.readAsDataURL(f);};
+el('sample').onclick=()=>{collect();delete settings.gifBase64;delete settings.gifName;el('file').value='';show();save();};
+el('testAction').onclick=()=>{try{collect();GifActions.target(settings);if(!save())return;socket.send(JSON.stringify({event:'sendToPlugin',action:action,context:uuid,payload:{settings:settings}}));socket.send(JSON.stringify({event:'sendToPlugin',action:action,context:uuid,payload:{testClick:true}}));}catch(e){status('오류: '+e.message);}};
+el('copy').onclick=async()=>{const log=JSON.stringify({plugin:'AJAZZ GIF 0.6.0',status:lastStatus,fps:settings.fps||12,action:settings.clickAction||'pause',browser:settings.browser||'default',time:new Date().toISOString()},null,2);try{await navigator.clipboard.writeText(log);status('진단 내용을 복사했습니다.');}catch{window.prompt('아래 내용을 복사해 주세요.',log);}};
+window.addEventListener('beforeunload',()=>{if(pending){collect();save();}});window.connectElgatoStreamDeckSocket=connect;window.connectMiraBoxSDSocket=connect;window.connectSocket=connect;
+})();

@@ -1,0 +1,41 @@
+{
+  "Actions": [
+    {
+      "Icon": "images/icon",
+      "Name": "GIF 버튼",
+      "States": [
+        {
+          "Image": "images/icon",
+          "TitleAlignment": "bottom",
+          "FontSize": "10"
+        }
+      ],
+      "Controllers": [
+        "Keypad"
+      ],
+      "UserTitleEnabled": true,
+      "SupportedInMultiActions": false,
+      "Tooltip": "움직이는 GIF와 웹사이트·폴더·파일 열기를 설정합니다.",
+      "UUID": "com.eska.ajazz.gif.play",
+      "PropertyInspectorPath": "inspector.html"
+    }
+  ],
+  "SDKVersion": 1,
+  "Author": "ESKA",
+  "Name": "GIF 버튼",
+  "Icon": "images/icon",
+  "CodePath": "plugin.html",
+  "Description": "움직이는 GIF와 웹사이트·폴더·파일 실행",
+  "Category": "GIF 버튼",
+  "CategoryIcon": "images/icon",
+  "Version": "0.6.0",
+  "OS": [
+    {
+      "Platform": "windows",
+      "MinimumVersion": "10"
+    }
+  ],
+  "Software": {
+    "MinimumVersion": "3.10"
+  }
+}

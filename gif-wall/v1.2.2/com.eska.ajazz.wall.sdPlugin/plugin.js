@@ -16,7 +16,12 @@ async function paint(device,list,g,configNow,index,revision){
   if(g.revision!==revision)return;
   const screen=document.createElement('canvas');screen.width=width;screen.height=height;const ctx=screen.getContext('2d');GifEngine.drawWall(ctx,image,configNow);
   const tile=document.createElement('canvas');tile.width=tile.height=144;const tc=tile.getContext('2d'),messages=[];
-  for(const [context,s]of list){let row=s.row,column=s.column;if(s.settings.tileAnchor===anchor(s)&&Number.isInteger(Number(s.settings.tile))&&Number(s.settings.tile)>=0&&s.settings.tile!==''&&s.settings.tile!==undefined){const n=Number(s.settings.tile);row=Math.floor(n/l.columns);column=n%l.columns;}
+  for(const [context,s]of list){let row=s.row,column=s.column;
+   // AKP153 app preview, measured with the user's numbered source (2026-10-15):
+   // physical rows show 13 10 7 4 1 / 14 11 8 5 2 / 15 12 9 6 3.
+   // The incoming tile index n therefore belongs to physical (n % 3, 4 - floor(n / 3)).
+   if(l.columns===5&&configNow.fix153Order!==false){const n=row*5+column;if(Number.isInteger(n)&&row>=0&&row<3&&column>=0&&column<5){row=n%3;column=4-Math.floor(n/3);}}
+   if(s.settings.tileAnchor===anchor(s)&&Number.isInteger(Number(s.settings.tile))&&Number(s.settings.tile)>=0&&s.settings.tile!==''&&s.settings.tile!==undefined){const n=Number(s.settings.tile);row=Math.floor(n/l.columns);column=n%l.columns;}
    if(row<0||column<0||row>=l.rows||column>=l.columns){status(context,'버튼 위치를 선택해 주세요.');continue;}
    tc.clearRect(0,0,144,144);tc.drawImage(screen,column*(144+l.gap),row*(144+l.gap),144,144,0,0,144,144);if(configNow.showTileNumbers){tc.fillStyle='#18202b';tc.fillRect(0,0,144,144);tc.fillStyle='#ffffff';tc.font='bold 64px sans-serif';tc.textAlign='center';tc.textBaseline='middle';tc.fillText(String(row*l.columns+column+1),72,72);}messages.push({context,image:tile.toDataURL('image/png')});
   }

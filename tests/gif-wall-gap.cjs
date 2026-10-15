@@ -1,6 +1,6 @@
 const {chromium}=require('playwright');
 const http=require('http'),fs=require('fs'),path=require('path'),assert=require('assert/strict');
-const root=path.resolve(__dirname,'../gif-wall/v1.2.1/com.eska.ajazz.wall.sdPlugin');
+const root=path.resolve(__dirname,'../gif-wall/v1.2.2/com.eska.ajazz.wall.sdPlugin');
 (async()=>{
  const server=http.createServer((req,res)=>{const file=path.join(root,new URL(req.url,'http://local').pathname);if(!file.startsWith(root+path.sep)){res.writeHead(403).end();return;}try{const ext=path.extname(file);res.setHeader('Content-Type',({'.html':'text/html','.js':'text/javascript','.gif':'image/gif'})[ext]||'application/octet-stream');res.end(fs.readFileSync(file));}catch{res.writeHead(404).end();}});
  await new Promise(r=>server.listen(0,'127.0.0.1',r));
@@ -15,7 +15,7 @@ const root=path.resolve(__dirname,'../gif-wall/v1.2.1/com.eska.ajazz.wall.sdPlug
  await page.evaluate(()=>{connectSocket(123,'plugin','register');sock.onopen();});
  for(const columns of [3,5])for(const includeGaps of [false,true])for(const gapPercent of [0,30,100]){
  const tiles=await page.evaluate(async({columns,includeGaps,gapPercent})=>{
-  const config={columns,includeGaps,gapPercent,fps:8},l=GifEngine.wallLayout(config);
+  const config={columns,fix153Order:false,includeGaps,gapPercent,fps:8},l=GifEngine.wallLayout(config);
   const canvas=document.createElement('canvas');canvas.width=l.width;canvas.height=l.height;const ctx=canvas.getContext('2d'),pixels=ctx.createImageData(l.width,l.height);
   for(let y=0;y<l.height;y++)for(let x=0;x<l.width;x++){const i=(y*l.width+x)*4;pixels.data.set([x%256,y%256,Math.floor(x/256)*50,255],i);}ctx.putImageData(pixels,0,0);
   config.framePack={id:Math.random().toString(),frames:[{end:100,image:canvas.toDataURL()}],duration:100};

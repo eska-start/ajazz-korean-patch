@@ -28,7 +28,7 @@
   "Description": "하나의 GIF를 전체 버튼에 나눠 재생합니다.",
   "Category": "GIF 전체 화면",
   "CategoryIcon": "images/icon",
-  "Version": "1.1.0",
+  "Version": "1.2.1",
   "OS": [
     {
       "Platform": "windows",

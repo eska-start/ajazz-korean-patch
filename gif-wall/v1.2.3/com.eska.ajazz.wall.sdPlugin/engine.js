@@ -67,5 +67,20 @@ function validatePack(pack){
  if(end!==pack.duration)throw Error('저장된 재생 시간이 잘못되었습니다.');return pack;
 }
 function frameIndex(anim,elapsed){const t=((elapsed%anim.duration)+anim.duration)%anim.duration;let i=0;while(i<anim.frames.length-1&&t>=anim.frames[i].end)i++;return i;}
-root.GifEngine={prepare:prepare,optimize:optimize,validatePack:validatePack,frameIndex:frameIndex};
+// Distances are in logical pixels; each visible display remains 144 x 144.
+function wallLayout(c){
+ c=c||{};const columns=Number(c.columns)===5?5:3,rows=columns===5?3:2;
+ const requested=Number(c.gapPercent),percent=Number.isFinite(requested)?Math.max(0,Math.min(100,requested)):30;
+ const gap=c.includeGaps===true?Math.round(144*percent/100):0;
+ return {columns,rows,tile:144,gap,width:columns*144+(columns-1)*gap,height:rows*144+(rows-1)*gap};
+}
+function drawWall(ctx,image,c){
+ const l=wallLayout(c),width=l.width,height=l.height;
+ ctx.fillStyle='#000';ctx.fillRect(0,0,width,height);ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';
+ const zoom=Math.max(.5,Math.min(3,(Number(c.displayScale)||100)/100));
+ const fit=Math.min(width/image.width,height/image.height)*zoom,dw=image.width*fit,dh=image.height*fit;
+ ctx.drawImage(image,(width-dw)/2+(Number(c.offsetX)||0)*width/60,(height-dh)/2+(Number(c.offsetY)||0)*height/60,dw,dh);
+ return l;
+}
+root.GifEngine={prepare:prepare,optimize:optimize,validatePack:validatePack,frameIndex:frameIndex,wallLayout:wallLayout,drawWall:drawWall};
 })(window);
